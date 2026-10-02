@@ -72,6 +72,32 @@ export const makeRoute = (T: Territory, N = 1200) => {
     });
   }
   pts.forEach((p, i) => (p.y = Math.max(g[i], ground[i]) + CONFIG.route.lift));
+
+  // paso subfluvial: tramos de agua (cota ~0) suficientemente largos → la línea baja bajo la ría
+  const ds = fr.L / (N - 1), { depth, ramp, minWater } = CONFIG.route.dip;
+  const wet = ground.map((h) => h < 0.4);
+  const water = new Array(N).fill(false);
+  for (let i = 0; i < N; ) {
+    if (!wet[i]) { i++; continue; }
+    let j = i;
+    while (j + 1 < N && wet[j + 1]) j++;
+    if ((j - i + 1) * ds >= minWater) for (let k = i; k <= j; k++) water[k] = true;
+    i = j + 1;
+  }
+  const crossing: { a: number; b: number }[] = [];
+  for (let i = 0; i < N; i++) if (water[i] && (i === 0 || !water[i - 1])) {
+    let j = i; while (j + 1 < N && water[j + 1]) j++;
+    crossing.push({ a: i / (N - 1), b: j / (N - 1) });
+  }
+  const win = Math.ceil(ramp / ds);
+  const dip = pts.map((_, i) => {
+    let w = 0;
+    for (let j = Math.max(0, i - win); j <= Math.min(N - 1, i + win); j++) {
+      if (water[j]) w = Math.max(w, smooth01(1 - (Math.abs(i - j) * ds) / ramp));
+    }
+    return w;
+  });
+  pts.forEach((p, i) => (p.y -= depth * dip[i]));
   // extremos exactos (centro de la rotonda / centro comercial)
   pts[0].x = a.x; pts[0].z = a.z;
   pts[N - 1].x = b.x; pts[N - 1].z = b.z;
@@ -80,6 +106,6 @@ export const makeRoute = (T: Territory, N = 1200) => {
     const p = pts[i], q = pts[i + 1];
     return { x: lerp(p.x, q.x, u), y: lerp(p.y, q.y, u), z: lerp(p.z, q.z, u) };
   };
-  return { pts, at, start: pts[0], end: pts[N - 1], hAt, frame: fr };
+  return { pts, at, start: pts[0], end: pts[N - 1], hAt, frame: fr, crossing };
 };
 export type Route = ReturnType<typeof makeRoute>;

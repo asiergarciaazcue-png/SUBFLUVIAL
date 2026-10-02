@@ -1,5 +1,14 @@
 {
-  "artaza": { "lat": 43.33306, "lon": -3.00181 },
-  "ballonti": { "lat": 43.311758, "lon": -3.022082 },
-  "margin": { "along": 1700, "side": 2300 }
+  "artaza": {
+    "lat": 43.33306,
+    "lon": -3.00181
+  },
+  "ballonti": {
+    "lat": 43.306243,
+    "lon": -3.015766
+  },
+  "margin": {
+    "along": 1700,
+    "side": 2300
+  }
 }

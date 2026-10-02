@@ -43,6 +43,9 @@ export const CONFIG = {
     glowOpacity: 0.22,
     xray: 0.8, // opacidad del tramo oculto tras edificios (lectura «radiografía»)
     markerSize: 18, // px — puntos de origen/destino
+    /* Paso subfluvial: bajo la ría la línea desciende de forma simbólica y vuelve a subir en la otra orilla.
+       Solo se aplica a láminas de agua de más de `minWater` m a lo largo del trazado (la ría, no los arroyos). */
+    dip: { depth: 34, ramp: 170, minWater: 80 }, // m
   },
 
   /* Crecimiento de la línea: t (s) → fracción del trazado dibujada (0–1).
@@ -72,8 +75,8 @@ export const CONFIG = {
        heading 0° = mirar perpendicular al trazado; + = mirar hacia Ballonti
        fov     campo de visión horizontal (°) */
   camera: [
-    { frame: 0, along: 0.0, range: 900, tilt: 68, heading: 35, fov: 44 },
-    { frame: 60, along: 0.02, range: 720, tilt: 72, heading: 42, fov: 46 },
+    { frame: 0, along: 0.0, range: 700, tilt: 66, heading: 35, fov: 44 },
+    { frame: 60, along: 0.02, range: 640, tilt: 70, heading: 42, fov: 46 },
     { frame: 120, along: 0.06, range: 560, tilt: 73, heading: 50, fov: 50 },
     { frame: 150, along: 0.11, range: 520, tilt: 74, heading: 52, fov: 52 },
     { frame: 210, along: 0.28, range: 600, tilt: 72, heading: 54, fov: 54 },

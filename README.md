@@ -23,7 +23,7 @@ Si el entorno no puede descargar Chrome Headless Shell, indica un Chromium local
 | --- | --- |
 | `src/data/config.ts` | **CONFIG central**: colores, keyframes de cámara, crecimiento de la línea, etiquetas, luz, bruma |
 | `src/data/geo.json` | Coordenadas de Artaza y Ballonti y margen del territorio (compartido con el script de datos) |
-| `src/data/route.ts` | Proyección al marco local, relieve y eje del trazado |
+| `src/data/route.ts` | Proyección al marco local, relieve, eje del trazado y bajada simbólica bajo la ría (`CONFIG.route.dip`) |
 | `src/components/Territory.tsx` | Suelo (usos, agua, viario, sombra ambiental), relieve y edificios extruidos |
 | `src/components/RouteLine.tsx` | Línea verde de grosor estable en pantalla, con halo y lectura «radiografía» |
 | `src/components/CameraRig.tsx` | Cámara por keyframes (interpolación monótona, zoom logarítmico) |
@@ -38,7 +38,7 @@ Si el entorno no puede descargar Chrome Headless Shell, indica un Chromium local
   (`height` / `num_floors`); en el resto, estimadas según tipo y superficie.
 - **Relieve**: Mapzen Terrain Tiles (Terrarium, AWS Open Data).
 - Coordenadas verificadas sobre los datos: el punto de Artaza (43.333060, −3.001810) cae en el centro de la
-  gran rotonda; el de Ballonti (43.311758, −3.022082) sobre el edificio del centro comercial.
+  gran rotonda; el de Ballonti (43.306243, −3.015766) en el centro de la rotonda próxima al centro comercial.
 
 Regenerar:
 
