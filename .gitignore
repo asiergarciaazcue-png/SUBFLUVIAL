@@ -3,3 +3,4 @@ out/
 data/raw/
 .remotion/
 *.mp4
+!render/*.mp4
