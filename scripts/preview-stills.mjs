@@ -8,12 +8,13 @@ import fs from "node:fs";
 
 const frames = process.argv.slice(2).map(Number);
 const list = frames.length ? frames : [0, 45, 90, 150, 240, 330, 420, 480, 540, 599];
-const outDir = path.resolve("out/stills");
+const outDir = path.resolve(process.env.OUT ?? "out/stills");
 fs.mkdirSync(outDir, { recursive: true });
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
 const browserExecutable = process.env.REMOTION_BROWSER ?? null;
 const chromiumOptions = { gl: "angle" };
-const composition = await selectComposition({ serveUrl, id: "ArtazaBallonti", browserExecutable, chromiumOptions });
+const id = process.env.COMP ?? "ArtazaBallonti";
+const composition = await selectComposition({ serveUrl, id, browserExecutable, chromiumOptions });
 for (const frame of list) {
   const output = path.join(outDir, `f${String(frame).padStart(3, "0")}.png`);
   await renderStill({ serveUrl, composition, frame, output, browserExecutable, chromiumOptions, timeoutInMilliseconds: 120000 });

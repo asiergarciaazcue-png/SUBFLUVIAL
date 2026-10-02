@@ -17,6 +17,18 @@ npm run render         # MP4 final (solo tras aprobar movimiento y estética)
 Si el entorno no puede descargar Chrome Headless Shell, indica un Chromium local:
 `REMOTION_BROWSER=/ruta/a/headless_shell npm run dev`.
 
+## Acabado realista (tipo Google Earth)
+
+Composición `ArtazaBallontiRealista`: ortofoto sobre el relieve y los tejados, fachadas, bruma atmosférica y
+**sin textos**. Ajustes en `CONFIG.real`. La ortofoto se genera con:
+
+```bash
+python3 scripts/fetch_ortho.py --source pnoa --res 0.5      # PNOA del IGN (recomendada, ~0,25 m/px)
+python3 scripts/fetch_ortho.py --source sentinel2 --res 2   # Sentinel-2, 10 m/px (solo provisional)
+```
+
+Render: `npx remotion render ArtazaBallontiRealista out/artaza-ballonti-realista.mp4`
+
 ## Estructura
 
 | Fichero | Función |

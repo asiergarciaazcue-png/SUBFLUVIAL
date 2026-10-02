@@ -88,6 +88,21 @@ export const CONFIG = {
   ],
   camClearance: 40, // m mínimos sobre el terreno
 
+  /* Acabado REALISTA (composición ArtazaBallontiRealista): ortofoto sobre el relieve y los tejados,
+     fachadas, cielo y bruma atmosférica. Sin textos. Ortofoto: scripts/fetch_ortho.py → public/ortho/ */
+  real: {
+    labels: false,
+    skyTop: "#86ABD2",
+    skyHorizon: "#D4DEE6",
+    haze: "#D4DEE6", // color de la bruma atmosférica y del límite de los datos
+    fog: { near: 1800, far: 8500, edge: 1100 },
+    facade: "#B5AEA2", // tono base de fachadas (se mezcla con el color del tejado)
+    facadeMix: 0.45,
+    windows: 0.2, // intensidad del patrón de ventanas (0 = fachadas lisas)
+    exposure: 1.0,
+    light: { sun: 2.1, sunColor: "#FFF4E2", hemi: 1.05, sky: "#CFE0F2", ground: "#8C8676", fill: 0.15, dir: [-0.5, 0.75, 0.6] as [number, number, number] },
+  },
+
   light: {
     sun: 1.25,
     hemi: 0.95,

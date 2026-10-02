@@ -2,13 +2,18 @@ import { Composition } from "remotion";
 import { ArtazaBallonti } from "./ArtazaBallonti";
 import { CONFIG } from "./data/config";
 
+const common = {
+  durationInFrames: CONFIG.durationSeconds * CONFIG.fps,
+  fps: CONFIG.fps,
+  width: CONFIG.width,
+  height: CONFIG.height,
+};
+
 export const RemotionRoot: React.FC = () => (
-  <Composition
-    id={CONFIG.id}
-    component={ArtazaBallonti}
-    durationInFrames={CONFIG.durationSeconds * CONFIG.fps}
-    fps={CONFIG.fps}
-    width={CONFIG.width}
-    height={CONFIG.height}
-  />
+  <>
+    {/* Acabado estilizado (grises tipo Google Maps 3D, con etiquetas) */}
+    <Composition id={CONFIG.id} component={ArtazaBallonti} defaultProps={{ look: "estilizado" as const }} {...common} />
+    {/* Acabado realista tipo Google Earth (ortofoto, sin textos) */}
+    <Composition id={`${CONFIG.id}Realista`} component={ArtazaBallonti} defaultProps={{ look: "realista" as const }} {...common} />
+  </>
 );

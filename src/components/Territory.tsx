@@ -79,14 +79,16 @@ function groundCanvas(T: TerritoryData, fr: Frame) {
 }
 
 /* ---------- Bruma por distancia + desvanecimiento hacia el límite de los datos (sin peana) ---------- */
-function installFade(mat: THREE.Material, fr: Frame) {
+export function installFade(mat: THREE.Material, fr: Frame, fadeColor: string = C.background, fog = CONFIG.fog) {
   const U = {
-    uFogRange: { value: new THREE.Vector2(CONFIG.fog.near, CONFIG.fog.far) },
-    uFadeCol: { value: new THREE.Color(C.background) },
+    uFogRange: { value: new THREE.Vector2(fog.near, fog.far) },
+    uFadeCol: { value: new THREE.Color(fadeColor) },
     uRect: { value: new THREE.Vector4(fr.xmin, fr.xmax, fr.zmin, fr.zmax) },
-    uEdgeW: { value: CONFIG.fog.edge },
+    uEdgeW: { value: fog.edge },
   };
-  mat.onBeforeCompile = (sh) => {
+  const prevCompile = mat.onBeforeCompile.bind(mat);
+  mat.onBeforeCompile = (sh, renderer) => {
+    prevCompile(sh, renderer);
     Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nvarying vec2 vWxz; varying float vFogD;")
@@ -99,7 +101,8 @@ function installFade(mat: THREE.Material, fr: Frame) {
         float ff = smoothstep(uFogRange.x, uFogRange.y, vFogD);
         gl_FragColor.rgb = mix(gl_FragColor.rgb, sRGBTransferOETF(vec4(uFadeCol, 1.0)).rgb, max(fe, ff));`);
   };
-  mat.customProgramCacheKey = () => "fade-v1";
+  const prev = mat.customProgramCacheKey.bind(mat);
+  mat.customProgramCacheKey = () => prev() + "|fade-v1";
 }
 
 function terrainGeometry(T: TerritoryData, fr: Frame) {
@@ -196,9 +199,12 @@ export const useTerritoryScene = (T: TerritoryData) =>
   }, [T]);
 
 /* ---------- Luz de estudio: sol suave con sombras que siguen al punto de mira ---------- */
-const Lights: React.FC<{ pose: Pose }> = ({ pose }) => {
+export type LightSetup = { sun: number; sunColor: string; hemi: number; sky: string; ground: string; fill: number; dir: [number, number, number] };
+const STUDIO: LightSetup = { sun: CONFIG.light.sun, sunColor: "#ffffff", hemi: CONFIG.light.hemi, sky: "#f4f7f9", ground: "#b9bcbd", fill: CONFIG.light.fill, dir: CONFIG.light.dir };
+
+export const Lights: React.FC<{ pose: Pose; setup?: LightSetup }> = ({ pose, setup = STUDIO }) => {
   const sun = useMemo(() => {
-    const l = new THREE.DirectionalLight(0xffffff, CONFIG.light.sun);
+    const l = new THREE.DirectionalLight(setup.sunColor, setup.sun);
     l.castShadow = true;
     l.shadow.mapSize.set(CONFIG.light.shadowMap, CONFIG.light.shadowMap);
     l.shadow.bias = -0.0004;
@@ -206,9 +212,9 @@ const Lights: React.FC<{ pose: Pose }> = ({ pose }) => {
     l.shadow.camera.near = 100;
     l.shadow.camera.far = 14000;
     return l;
-  }, []);
+  }, [setup]);
   useLayoutEffect(() => {
-    const dir = new THREE.Vector3(...CONFIG.light.dir).normalize();
+    const dir = new THREE.Vector3(...setup.dir).normalize();
     const ext = THREE.MathUtils.clamp(pose.range * 1.5, 700, 4200);
     const c = sun.shadow.camera;
     Object.assign(c, { left: -ext, right: ext, top: ext, bottom: -ext });
@@ -216,14 +222,14 @@ const Lights: React.FC<{ pose: Pose }> = ({ pose }) => {
     sun.target.position.copy(pose.target);
     sun.position.copy(pose.target).addScaledVector(dir, 6000);
     sun.target.updateMatrixWorld();
-  }, [pose, sun]);
-  const d = CONFIG.light.dir;
+  }, [pose, sun, setup]);
+  const d = setup.dir;
   return (
     <>
       <primitive object={sun} />
       <primitive object={sun.target} />
-      <hemisphereLight args={["#f4f7f9", "#b9bcbd", CONFIG.light.hemi]} />
-      <directionalLight color="#dfe8ff" intensity={CONFIG.light.fill} position={[-d[0], d[1] * 0.5, -d[2]]} />
+      <hemisphereLight args={[setup.sky, setup.ground, setup.hemi]} />
+      <directionalLight color="#dfe8ff" intensity={setup.fill} position={[-d[0], d[1] * 0.5, -d[2]]} />
     </>
   );
 };
