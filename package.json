@@ -1,0 +1,31 @@
+{
+  "name": "subfluvial-artaza-ballonti",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SUBFLUVIAL · Artaza → Ballonti — animación territorial 3D en Remotion",
+  "scripts": {
+    "dev": "remotion studio",
+    "still": "remotion still ArtazaBallonti",
+    "render": "remotion render ArtazaBallonti out/artaza-ballonti.mp4",
+    "data:fetch": "python3 scripts/fetch_overture.py",
+    "data:build": "python3 scripts/build_territory.py",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.1.2",
+    "@remotion/cli": "4.0.532",
+    "@remotion/fonts": "^4.0.532",
+    "@remotion/three": "4.0.532",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.532",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "^4.0.532",
+    "@remotion/renderer": "^4.0.532",
+    "@types/react": "19.1.8",
+    "@types/three": "0.180.0",
+    "typescript": "5.8.3"
+  }
+}
