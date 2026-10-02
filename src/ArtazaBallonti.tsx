@@ -7,6 +7,7 @@ import { GlowDot, MarkerLabel } from "./components/MarkerLabel";
 import { RouteLine } from "./components/RouteLine";
 import { Territory } from "./components/Territory";
 import { Ortho, TerritoryReal } from "./components/TerritoryReal";
+import { GoogleTiles } from "./components/GoogleTiles";
 import { CONFIG } from "./data/config";
 import { makeRoute, smooth01, Territory as TerritoryData } from "./data/route";
 
@@ -46,7 +47,7 @@ const useOrtho = (enabled: boolean) => {
   return ortho;
 };
 
-export type Look = "estilizado" | "realista";
+export type Look = "estilizado" | "realista" | "google";
 
 export const ArtazaBallonti: React.FC<{ look?: Look }> = ({ look = "estilizado" }) => {
   const data = useTerritory();
@@ -56,7 +57,8 @@ export const ArtazaBallonti: React.FC<{ look?: Look }> = ({ look = "estilizado" 
 };
 
 const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> = ({ data, look, ortho }) => {
-  const real = look === "realista";
+  const google = look === "google";
+  const real = look === "realista" || google;
   const showLabels = real ? CONFIG.real.labels : true;
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -81,7 +83,12 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> 
     <AbsoluteFill style={{ background: real ? `linear-gradient(180deg, ${CONFIG.real.skyTop} 0%, ${CONFIG.real.skyHorizon} 38%, ${CONFIG.real.haze} 100%)` : CONFIG.colors.background }}>
       <ThreeCanvas width={width} height={height} shadows flat gl={{ antialias: true, preserveDrawingBuffer: true, alpha: true }} camera={{ fov: 40, near: 5, far: 80000 }}>
         <CameraRig pose={pose} />
-        {real && ortho ? <TerritoryReal data={data} ortho={ortho} pose={pose} /> : <Territory data={data} pose={pose} />}
+        {google ? (
+          <>
+            <fog attach="fog" args={[CONFIG.real.haze, CONFIG.real.fog.near, CONFIG.real.fog.far * 1.6]} />
+            <GoogleTiles data={data} pose={pose} />
+          </>
+        ) : real && ortho ? <TerritoryReal data={data} ortho={ortho} pose={pose} /> : <Territory data={data} pose={pose} />}
         <RouteLine route={route} progress={progress} />
       </ThreeCanvas>
       <AbsoluteFill style={{ pointerEvents: "none" }}>
@@ -91,6 +98,11 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> 
         {showLabels && sA.visible && <MarkerLabel x={sA.x} y={sA.y} text={CONFIG.artaza.name} opacity={aIn} />}
         {showLabels && sB.visible && <MarkerLabel x={sB.x} y={sB.y} text={CONFIG.ballonti.name} opacity={bIn} />}
       </AbsoluteFill>
+      {google && CONFIG.google.attribution && (
+        <div style={{ position: "absolute", right: 22, bottom: 16, fontFamily: "Arial, sans-serif", fontSize: 15, color: "rgba(255,255,255,.85)", textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>
+          Google · Datos del mapa ©{new Date().getFullYear()} Google
+        </div>
+      )}
       <AbsoluteFill style={{ pointerEvents: "none", background: `radial-gradient(ellipse at center, rgba(8,24,28,0) 58%, rgba(8,24,28,${CONFIG.vignette}) 100%)` }} />
     </AbsoluteFill>
   );

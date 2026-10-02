@@ -16,6 +16,7 @@
     "@remotion/cli": "4.0.532",
     "@remotion/fonts": "^4.0.532",
     "@remotion/three": "4.0.532",
+    "3d-tiles-renderer": "^0.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "remotion": "4.0.532",

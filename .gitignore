@@ -4,3 +4,5 @@ data/raw/
 .remotion/
 *.mp4
 !render/*.mp4
+.env*
+data/cache/

@@ -88,6 +88,15 @@ export const CONFIG = {
   ],
   camClearance: 40, // m mínimos sobre el terreno
 
+  /* Google Photorealistic 3D Tiles (composición ArtazaBallontiGoogle). Requiere el proxy local en marcha:
+       NODE_USE_ENV_PROXY=1 node scripts/tiles-proxy.mjs   (clave en .env.local, nunca en el repo) */
+  google: {
+    proxy: "http://localhost:8787",
+    geoid: 52, // m — ondulación del geoide en el Abra (altura elipsoidal del nivel del mar)
+    errorTarget: 6, // px — menor = más detalle (y más descargas)
+    attribution: true, // Google exige mostrar la atribución de los datos
+  },
+
   /* Acabado REALISTA (composición ArtazaBallontiRealista): ortofoto sobre el relieve y los tejados,
      fachadas, cielo y bruma atmosférica. Sin textos. Ortofoto: scripts/fetch_ortho.py → public/ortho/ */
   real: {

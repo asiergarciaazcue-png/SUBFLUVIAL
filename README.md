@@ -17,6 +17,18 @@ npm run render         # MP4 final (solo tras aprobar movimiento y estética)
 Si el entorno no puede descargar Chrome Headless Shell, indica un Chromium local:
 `REMOTION_BROWSER=/ruta/a/headless_shell npm run dev`.
 
+## Acabado Google 3D (Photorealistic 3D Tiles)
+
+Composición `ArtazaBallontiGoogle`: el vuelo sobre las teselas 3D fotorrealistas de Google (Map Tiles API),
+con la línea verde superpuesta en el mismo espacio 3D. Sin etiquetas (solo la atribución obligatoria de Google,
+desactivable en `CONFIG.google.attribution`).
+
+```bash
+echo "GOOGLE_MAPS_API_KEY=tu_clave" > .env.local          # no se versiona
+NODE_USE_ENV_PROXY=1 node scripts/tiles-proxy.mjs &      # añade la clave y cachea teselas en data/cache/
+npx remotion render ArtazaBallontiGoogle out/google.mp4 --gl=angle --concurrency=3 --timeout=600000
+```
+
 ## Acabado realista (tipo Google Earth)
 
 Composición `ArtazaBallontiRealista`: ortofoto sobre el relieve y los tejados, fachadas, bruma atmosférica y

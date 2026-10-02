@@ -15,5 +15,7 @@ export const RemotionRoot: React.FC = () => (
     <Composition id={CONFIG.id} component={ArtazaBallonti} defaultProps={{ look: "estilizado" as const }} {...common} />
     {/* Acabado realista tipo Google Earth (ortofoto, sin textos) */}
     <Composition id={`${CONFIG.id}Realista`} component={ArtazaBallonti} defaultProps={{ look: "realista" as const }} {...common} />
+    {/* Google Photorealistic 3D Tiles (requiere scripts/tiles-proxy.mjs y clave en .env.local), sin textos */}
+    <Composition id={`${CONFIG.id}Google`} component={ArtazaBallonti} defaultProps={{ look: "google" as const }} {...common} />
   </>
 );
