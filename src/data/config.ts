@@ -51,14 +51,15 @@ export const CONFIG = {
     underground: {
       enabled: true,
       depth: 40, // m bajo el terreno
-      shaftPoints: 40, // muestras de cada pozo vertical (≈ duración relativa de la bajada/subida)
+      rampAngle: 45, // ° — pendiente máxima de la bajada en Artaza y la subida en Ballonti
+      shaftPoints: 0, // >0 añade pozos verticales a 90° en los extremos (alternativa a las rampas)
       lineOpacity: 1, // la línea se ve a través del terreno (lectura de radiografía)
       curtainOpacity: 0.42, // opacidad de la cortina de sección en la cota del túnel (se desvanece hacia arriba)
       surfaceTrace: 0.75, // opacidad de la traza discontinua en superficie
       surfaceDash: [14, 10] as [number, number], // m — trazo / hueco
     },
     /* Modo radiografía de la ciudad mientras avanza la línea (solo acabado Google) */
-    xrayCity: { desaturate: 0.3, darken: 0.12, in: [2.6, 4.6] as [number, number], out: [18.0, 19.6] as [number, number] }, // s de animación
+    xrayCity: { desaturate: 0.6, darken: 0.2, in: [2.6, 4.6] as [number, number], out: [18.0, 19.6] as [number, number] }, // s de animación
   },
   /* Márgenes de edición: segundos fijos antes de empezar y después de terminar la animación */
   holdStart: 3,

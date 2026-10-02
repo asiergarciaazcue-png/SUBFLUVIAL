@@ -72,8 +72,16 @@ export const makeRoute = (T: Territory, N = 1200) => {
     });
   }
   const U = CONFIG.route.underground;
-  // túnel: todo el trazado a `depth` m bajo el terreno (perfil alisado)
-  pts.forEach((p, i) => (p.y = Math.max(g[i], ground[i]) + (U.enabled ? -U.depth : CONFIG.route.lift)));
+  // túnel: todo el trazado a `depth` m bajo el terreno (perfil alisado), con rampas de entrada y salida
+  // de pendiente máxima `rampAngle` (perfil suavizado: pendiente máx. = 1,5 × media → longitud = 1,5·depth/tan θ)
+  const rampLen = (1.5 * U.depth) / Math.tan((U.rampAngle * Math.PI) / 180);
+  pts.forEach((p, i) => {
+    const surf = Math.max(g[i], ground[i]);
+    if (!U.enabled) { p.y = surf + CONFIG.route.lift; return; }
+    const dA = (i / (N - 1)) * fr.L, dB = fr.L - dA;
+    const k = smooth01(dA / rampLen) * smooth01(dB / rampLen);
+    p.y = surf + 1.5 - (U.depth + 1.5) * k;
+  });
 
   // paso subfluvial: tramos de agua (cota ~0) suficientemente largos → la línea baja bajo la ría
   const ds = fr.L / (N - 1), { depth, ramp, minWater } = CONFIG.route.dip;
