@@ -71,7 +71,9 @@ export const makeRoute = (T: Territory, N = 1200) => {
       return s / n;
     });
   }
-  pts.forEach((p, i) => (p.y = Math.max(g[i], ground[i]) + CONFIG.route.lift));
+  const U = CONFIG.route.underground;
+  // túnel: todo el trazado a `depth` m bajo el terreno (perfil alisado)
+  pts.forEach((p, i) => (p.y = Math.max(g[i], ground[i]) + (U.enabled ? -U.depth : CONFIG.route.lift)));
 
   // paso subfluvial: tramos de agua (cota ~0) suficientemente largos → la línea baja bajo la ría
   const ds = fr.L / (N - 1), { depth, ramp, minWater } = CONFIG.route.dip;
@@ -98,14 +100,32 @@ export const makeRoute = (T: Territory, N = 1200) => {
     return w;
   });
   pts.forEach((p, i) => (p.y -= depth * dip[i]));
-  // extremos exactos (centro de la rotonda / centro comercial)
+  // extremos exactos (centro de la rotonda de Artaza / rotonda de Ballonti)
   pts[0].x = a.x; pts[0].z = a.z;
   pts[N - 1].x = b.x; pts[N - 1].z = b.z;
+  // superficie sobre cada punto (suelo o lámina de agua): techo de la cortina de sección y traza en superficie
+  let surface = pts.map((p) => Math.max(hAt(p.x, p.z), 0) + 1.5);
+
+  // pozos verticales: la línea baja desde la rotonda de Artaza y sube en la de Ballonti
+  if (U.enabled && U.shaftPoints > 0) {
+    const k = U.shaftPoints;
+    const topA = Math.max(hAt(a.x, a.z), 0) + 1.5, topB = Math.max(hAt(b.x, b.z), 0) + 1.5;
+    const down = Array.from({ length: k }, (_, i) => ({ x: a.x, z: a.z, y: lerp(topA, pts[0].y, i / k) }));
+    const up = Array.from({ length: k }, (_, i) => ({ x: b.x, z: b.z, y: lerp(pts[N - 1].y, topB, (i + 1) / k) }));
+    pts.unshift(...down);
+    pts.push(...up);
+    surface = [...down.map(() => topA), ...surface, ...up.map(() => topB)];
+  }
+  const M = pts.length;
   const at = (s: number) => {
-    const f = clamp(s, 0, 1) * (N - 1), i = Math.min(N - 2, Math.floor(f)), u = f - i;
+    const f = clamp(s, 0, 1) * (M - 1), i = Math.min(M - 2, Math.floor(f)), u = f - i;
     const p = pts[i], q = pts[i + 1];
     return { x: lerp(p.x, q.x, u), y: lerp(p.y, q.y, u), z: lerp(p.z, q.z, u) };
   };
-  return { pts, at, start: pts[0], end: pts[N - 1], hAt, frame: fr, crossing };
+  const surfaceAt = (s: number) => {
+    const f = clamp(s, 0, 1) * (M - 1), i = Math.min(M - 2, Math.floor(f));
+    return lerp(surface[i], surface[i + 1], f - i);
+  };
+  return { pts, surface, at, surfaceAt, start: pts[0], end: pts[M - 1], hAt, frame: fr, crossing };
 };
 export type Route = ReturnType<typeof makeRoute>;

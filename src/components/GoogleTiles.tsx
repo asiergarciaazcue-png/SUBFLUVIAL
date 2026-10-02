@@ -32,9 +32,29 @@ function ecefToLocal(T: TerritoryData) {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/* Modo radiografía de la ciudad: desaturar y oscurecer suavemente las teselas (uniforme compartido) */
+const XRAY = { uDesat: { value: 0 }, uDark: { value: 0 } };
+function patchMaterial(m: THREE.Material) {
+  if ((m as any).__xray) return;
+  (m as any).__xray = true;
+  const prev = m.onBeforeCompile.bind(m);
+  m.onBeforeCompile = (sh, r) => {
+    prev(sh, r);
+    Object.assign(sh.uniforms, XRAY);
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", "#include <common>\nuniform float uDesat; uniform float uDark;")
+      .replace("#include <dithering_fragment>", `#include <dithering_fragment>
+        float lum = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(lum), uDesat) * (1.0 - uDark);`);
+  };
+  const prevKey = m.customProgramCacheKey.bind(m);
+  m.customProgramCacheKey = () => prevKey() + "|xray";
+  m.needsUpdate = true;
+}
+
 /* Google Photorealistic 3D Tiles servidas por el proxy local (scripts/tiles-proxy.mjs añade la clave).
    En cada fotograma se espera a que estén cargadas todas las teselas necesarias para esa cámara. */
-export const GoogleTiles: React.FC<{ data: TerritoryData; pose: Pose }> = ({ data, pose }) => {
+export const GoogleTiles: React.FC<{ data: TerritoryData; pose: Pose; xray: number }> = ({ data, pose, xray }) => {
   const { camera, gl, scene, size } = useThree();
   const tiles = useMemo(() => {
     const t = new TilesRenderer(`${G.proxy}/v1/3dtiles/root.json`);
@@ -44,6 +64,9 @@ export const GoogleTiles: React.FC<{ data: TerritoryData; pose: Pose }> = ({ dat
     t.group.matrixAutoUpdate = false;
     t.group.matrix.copy(ecefToLocal(data));
     t.group.updateMatrixWorld(true);
+    t.addEventListener("load-model", (e: any) => {
+      e.scene.traverse((o: any) => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(patchMaterial); });
+    });
     t.lruCache.minSize = 3000;
     t.lruCache.maxSize = 6000;
     return t;
@@ -58,6 +81,8 @@ export const GoogleTiles: React.FC<{ data: TerritoryData; pose: Pose }> = ({ dat
   useLayoutEffect(() => () => tiles.dispose(), [tiles]);
 
   useLayoutEffect(() => {
+    XRAY.uDesat.value = CONFIG.route.xrayCity.desaturate * xray;
+    XRAY.uDark.value = CONFIG.route.xrayCity.darken * xray;
     const handle = delayRender("Cargando teselas 3D de Google", { timeoutInMilliseconds: 600000 });
     let cancelled = false;
     (async () => {
@@ -75,7 +100,7 @@ export const GoogleTiles: React.FC<{ data: TerritoryData; pose: Pose }> = ({ dat
       continueRender(handle);
     })();
     return () => { cancelled = true; };
-  }, [pose, tiles, camera, gl, scene]);
+  }, [pose, tiles, camera, gl, scene, xray]);
 
   return <primitive object={tiles.group} />;
 };

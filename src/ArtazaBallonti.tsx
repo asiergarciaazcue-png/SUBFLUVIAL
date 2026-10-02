@@ -60,9 +60,14 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> 
   const google = look === "google";
   const real = look === "realista" || google;
   const showLabels = real ? CONFIG.real.labels : true;
-  const frame = useCurrentFrame();
+  const rawFrame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
+  // márgenes de edición: imagen fija antes y después de los 20 s de animación
+  const animFrames = (CONFIG.durationSeconds - CONFIG.holdStart - CONFIG.holdEnd) * fps;
+  const frame = Math.min(Math.max(rawFrame - CONFIG.holdStart * fps, 0), animFrames - 1);
   const t = frame / fps;
+  const X = CONFIG.route.xrayCity;
+  const xray = smooth01((t - X.in[0]) / (X.in[1] - X.in[0])) * (1 - smooth01((t - X.out[0]) / (X.out[1] - X.out[0])));
   const aspect = width / height;
   const route = useMemo(() => makeRoute(data), [data]);
   const pose = useMemo(() => cameraPose(frame, route, aspect), [frame, route, aspect]);
@@ -86,7 +91,7 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> 
         {google ? (
           <>
             <fog attach="fog" args={[CONFIG.real.haze, CONFIG.real.fog.near, CONFIG.real.fog.far * 1.6]} />
-            <GoogleTiles data={data} pose={pose} />
+            <GoogleTiles data={data} pose={pose} xray={xray} />
           </>
         ) : real && ortho ? <TerritoryReal data={data} ortho={ortho} pose={pose} /> : <Territory data={data} pose={pose} />}
         <RouteLine route={route} progress={progress} />

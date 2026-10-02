@@ -6,7 +6,7 @@ import geo from "./geo.json";
    ===================================================================== */
 export const CONFIG = {
   id: "ArtazaBallonti",
-  durationSeconds: 20,
+  durationSeconds: 26, // 3 s fijos + 20 s de animación + 3 s fijos (ver holdStart / holdEnd)
   fps: 30,
   width: 1920,
   height: 1080,
@@ -45,8 +45,24 @@ export const CONFIG = {
     markerSize: 18, // px — puntos de origen/destino
     /* Paso subfluvial: bajo la ría la línea desciende de forma simbólica y vuelve a subir en la otra orilla.
        Solo se aplica a láminas de agua de más de `minWater` m a lo largo del trazado (la ría, no los arroyos). */
-    dip: { depth: 34, ramp: 170, minWater: 80 }, // m
+    dip: { depth: 26, ramp: 170, minWater: 80 }, // m (adicional a la profundidad del túnel)
+    /* Infraestructura subterránea: túnel a `depth` m bajo el terreno en todo el recorrido, pozos verticales
+       en los extremos, cortina de sección translúcida hasta la superficie y traza discontinua en superficie. */
+    underground: {
+      enabled: true,
+      depth: 40, // m bajo el terreno
+      shaftPoints: 40, // muestras de cada pozo vertical (≈ duración relativa de la bajada/subida)
+      lineOpacity: 1, // la línea se ve a través del terreno (lectura de radiografía)
+      curtainOpacity: 0.42, // opacidad de la cortina de sección en la cota del túnel (se desvanece hacia arriba)
+      surfaceTrace: 0.75, // opacidad de la traza discontinua en superficie
+      surfaceDash: [14, 10] as [number, number], // m — trazo / hueco
+    },
+    /* Modo radiografía de la ciudad mientras avanza la línea (solo acabado Google) */
+    xrayCity: { desaturate: 0.3, darken: 0.12, in: [2.6, 4.6] as [number, number], out: [18.0, 19.6] as [number, number] }, // s de animación
   },
+  /* Márgenes de edición: segundos fijos antes de empezar y después de terminar la animación */
+  holdStart: 3,
+  holdEnd: 3,
 
   /* Crecimiento de la línea: t (s) → fracción del trazado dibujada (0–1).
      Nace a los 3 s en el centro de la rotonda y llega a Ballonti a los 17,6 s.
