@@ -19,6 +19,8 @@ export const RemotionRoot: React.FC = () => (
     <Composition id={`${CONFIG.id}Google`} component={ArtazaBallonti} defaultProps={{ look: "google" as const }} {...common} />
     {/* Recorrido inverso Ballonti → Artaza, acabado estilizado (sin depender de Google) */}
     <Composition id="BallontiArtaza" component={ArtazaBallonti} defaultProps={{ look: "estilizado" as const, reverse: true, labels: false }} {...common} />
+    {/* Recorrido inverso Ballonti → Artaza sobre ortofoto PNOA (IGN), sin textos */}
+    <Composition id="BallontiArtazaRealista" component={ArtazaBallonti} defaultProps={{ look: "realista" as const, reverse: true, labels: false }} {...common} />
     {/* Recorrido inverso Ballonti → Artaza sobre Google 3D (cámara por el otro lado; la línea crece de izquierda a derecha) */}
     <Composition id="BallontiArtazaGoogle" component={ArtazaBallonti} defaultProps={{ look: "google" as const, reverse: true }} {...common} />
   </>

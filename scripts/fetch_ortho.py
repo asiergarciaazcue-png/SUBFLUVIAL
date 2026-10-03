@@ -22,7 +22,7 @@ CACHE = os.path.join(ROOT, "data", "raw", "ortho")
 D2R = math.pi / 180
 
 SOURCES = {
-    "pnoa": {"url": "https://tms-pnoa-ma.idee.es/1.0.0/pnoa-ma/{z}/{x}/{y}.jpeg", "tms": True, "zoom": 19,
+    "pnoa": {"url": "https://tms-pnoa-ma.idee.es/1.0.0/pnoa-ma/{z}/{x}/{y}.jpeg", "tms": True, "zoom": 18,
              "credit": "PNOA cedido por © Instituto Geográfico Nacional (CC BY 4.0)"},
     "sentinel2": {"credit": "Contiene datos Copernicus Sentinel-2 modificados (2025)"},
 }
@@ -66,8 +66,15 @@ def xyz_sampler(url, zoom, tms):
         f = os.path.join(CACHE, f"{args.source}_{zoom}_{tx}_{ty}.jpg")
         if not os.path.exists(f):
             req = urllib.request.Request(url.format(z=zoom, x=tx, y=yy), headers={"User-Agent": "subfluvial-render"})
-            with urllib.request.urlopen(req, timeout=60) as r:
-                open(f, "wb").write(r.read())
+            for a in range(5):
+                try:
+                    with urllib.request.urlopen(req, timeout=60) as r:
+                        open(f, "wb").write(r.read())
+                    break
+                except Exception:
+                    if a == 4:
+                        raise
+                    import time; time.sleep(2 ** a)
         cache[k] = np.asarray(Image.open(f).convert("RGB"))
         return cache[k]
 

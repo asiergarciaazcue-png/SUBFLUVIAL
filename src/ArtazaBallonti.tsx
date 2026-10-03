@@ -94,7 +94,7 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null; re
             <fog attach="fog" args={[CONFIG.real.haze, CONFIG.real.fog.near, CONFIG.real.fog.far * 1.6]} />
             <GoogleTiles data={data} pose={pose} xray={xray} />
           </>
-        ) : real && ortho ? <TerritoryReal data={data} ortho={ortho} pose={pose} /> : <Territory data={data} pose={pose} />}
+        ) : real && ortho ? <TerritoryReal data={data} ortho={ortho} pose={pose} xray={xray} /> : <Territory data={data} pose={pose} />}
         <RouteLine route={route} progress={progress} />
       </ThreeCanvas>
       <AbsoluteFill style={{ pointerEvents: "none" }}>

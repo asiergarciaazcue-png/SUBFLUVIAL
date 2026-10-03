@@ -4,6 +4,7 @@ import { CONFIG } from "../data/config";
 import { Frame, makeFrame, makeHeight, Territory as TerritoryData } from "../data/route";
 import type { Pose } from "./CameraRig";
 import { installFade, Lights } from "./Territory";
+import { patchMaterial, setXray } from "./xray";
 
 const R = CONFIG.real;
 
@@ -132,9 +133,12 @@ export const useRealScene = (T: TerritoryData, ortho: Ortho) =>
       const map = t.texture!;
       const tm = new THREE.MeshStandardMaterial({ map, roughness: 1, metalness: 0 });
       installFade(tm, fr, R.haze, R.fog);
+      patchMaterial(tm);
       const terrain = new THREE.Mesh(tileTerrain(T, t), tm);
       terrain.receiveShadow = true;
-      const bm = new THREE.Mesh(tileBuildings(buckets[k], t), facadeMaterial(map, fr));
+      const fm = facadeMaterial(map, fr);
+      patchMaterial(fm);
+      const bm = new THREE.Mesh(tileBuildings(buckets[k], t), fm);
       bm.castShadow = true; bm.receiveShadow = true;
       group.add(terrain, bm);
     });
@@ -145,8 +149,9 @@ export const useRealScene = (T: TerritoryData, ortho: Ortho) =>
     return group;
   }, [T, ortho]);
 
-export const TerritoryReal: React.FC<{ data: TerritoryData; ortho: Ortho; pose: Pose }> = ({ data, ortho, pose }) => {
+export const TerritoryReal: React.FC<{ data: TerritoryData; ortho: Ortho; pose: Pose; xray?: number }> = ({ data, ortho, pose, xray = 0 }) => {
   const group = useRealScene(data, ortho);
+  setXray(xray);
   return (
     <>
       <Lights pose={pose} setup={R.light} />
