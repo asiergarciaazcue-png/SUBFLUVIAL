@@ -7,3 +7,5 @@ data/raw/
 .env*
 data/cache/
 public/earth/*.mp4
+__pycache__/
+data/earth/
