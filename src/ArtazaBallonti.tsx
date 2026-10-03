@@ -49,17 +49,17 @@ const useOrtho = (enabled: boolean) => {
 
 export type Look = "estilizado" | "realista" | "google";
 
-export const ArtazaBallonti: React.FC<{ look?: Look; reverse?: boolean }> = ({ look = "estilizado", reverse = false }) => {
+export const ArtazaBallonti: React.FC<{ look?: Look; reverse?: boolean; labels?: boolean }> = ({ look = "estilizado", reverse = false, labels }) => {
   const data = useTerritory();
   const ortho = useOrtho(look === "realista");
   if (!data || (look === "realista" && !ortho)) return <AbsoluteFill style={{ background: CONFIG.colors.background }} />;
-  return <Scene data={data} look={look} ortho={ortho} reverse={reverse} />;
+  return <Scene data={data} look={look} ortho={ortho} reverse={reverse} labels={labels} />;
 };
 
-const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null; reverse: boolean }> = ({ data, look, ortho, reverse }) => {
+const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null; reverse: boolean; labels?: boolean }> = ({ data, look, ortho, reverse, labels }) => {
   const google = look === "google";
   const real = look === "realista" || google;
-  const showLabels = real ? CONFIG.real.labels : true;
+  const showLabels = labels ?? (real ? CONFIG.real.labels : true);
   const rawFrame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
   // márgenes de edición: imagen fija antes y después de los 20 s de animación
