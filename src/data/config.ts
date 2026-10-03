@@ -103,6 +103,21 @@ export const CONFIG = {
     { frame: 540, along: 0.97, range: 820, tilt: 66, heading: 42, fov: 50 },
     { frame: 599, along: 0.47, range: 3900, tilt: 57, heading: 47, fov: 50 },
   ],
+  /* Cámara CINEMATOGRÁFICA (prop camera="cine"): grúa de apertura, seguimiento bajo de la punta,
+     plano lateral casi de perfil al cruzar la ría y grúa final de revelado. Rumbo relativo al sentido de avance. */
+  cameraCine: [
+    { frame: 0, along: 0.0, range: 1150, tilt: 56, heading: 22, fov: 40 }, // plano general alto
+    { frame: 75, along: 0.0, range: 560, tilt: 66, heading: 38, fov: 42 }, // grúa descendente sobre la rotonda
+    { frame: 120, along: 0.045, range: 400, tilt: 72, heading: 58, fov: 46 }, // la línea entra en rampa
+    { frame: 180, along: 0.2, range: 430, tilt: 75, heading: 66, fov: 50 }, // seguimiento bajo
+    { frame: 228, along: 0.32, range: 520, tilt: 77, heading: 28, fov: 50 }, // giro hacia el perfil
+    { frame: 275, along: 0.44, range: 580, tilt: 79, heading: 8, fov: 50 }, // perfil: la línea pasa bajo la ría
+    { frame: 320, along: 0.56, range: 520, tilt: 76, heading: 34, fov: 50 },
+    { frame: 390, along: 0.74, range: 470, tilt: 74, heading: 60, fov: 50 }, // seguimiento
+    { frame: 470, along: 0.92, range: 520, tilt: 70, heading: 46, fov: 48 }, // llegada a Artaza
+    { frame: 510, along: 0.985, range: 640, tilt: 66, heading: 36, fov: 46 },
+    { frame: 599, along: 0.48, range: 3900, tilt: 57, heading: 42, fov: 50 }, // grúa final: conexión completa
+  ],
   camClearance: 40, // m mínimos sobre el terreno
 
   /* Google Photorealistic 3D Tiles (composición ArtazaBallontiGoogle). Requiere el proxy local en marcha:

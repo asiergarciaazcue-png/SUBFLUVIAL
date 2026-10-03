@@ -26,22 +26,27 @@ export function monotone(T: number[], V: number[]) {
   };
 }
 
-const keys = CONFIG.camera;
-const F = keys.map((k) => k.frame);
-const curves = {
-  along: monotone(F, keys.map((k) => k.along)),
-  logRange: monotone(F, keys.map((k) => Math.log(k.range))), // el zoom se interpola en escala logarítmica
-  tilt: monotone(F, keys.map((k) => k.tilt)),
-  heading: monotone(F, keys.map((k) => k.heading)),
-  fov: monotone(F, keys.map((k) => k.fov)),
+export type CameraMode = "standard" | "cine";
+type Key = { frame: number; along: number; range: number; tilt: number; heading: number; fov: number };
+const makeCameraCurves = (keys: readonly Key[]) => {
+  const F = keys.map((k) => k.frame);
+  return {
+    along: monotone(F, keys.map((k) => k.along)),
+    logRange: monotone(F, keys.map((k) => Math.log(k.range))), // el zoom se interpola en escala logarítmica
+    tilt: monotone(F, keys.map((k) => k.tilt)),
+    heading: monotone(F, keys.map((k) => k.heading)),
+    fov: monotone(F, keys.map((k) => k.fov)),
+  };
 };
+const CURVES = { standard: makeCameraCurves(CONFIG.camera), cine: makeCameraCurves(CONFIG.cameraCine) };
 export const lineProgress = monotone(CONFIG.line.map((k) => k.t), CONFIG.line.map((k) => k.v));
 
 export type Pose = { position: THREE.Vector3; target: THREE.Vector3; fovV: number; range: number };
 
 /* Pose de cámara para un fotograma: mira a un punto del trazado desde una distancia,
    inclinación y rumbo dados (rumbo relativo al eje Artaza → Ballonti). */
-export function cameraPose(frame: number, route: Route, aspect: number): Pose {
+export function cameraPose(frame: number, route: Route, aspect: number, mode: CameraMode = "standard"): Pose {
+  const curves = CURVES[mode];
   const along = clamp(curves.along(frame), 0, 1);
   const p = route.at(along);
   const range = Math.exp(curves.logRange(frame));

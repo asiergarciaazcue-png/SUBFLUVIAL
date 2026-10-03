@@ -2,7 +2,7 @@ import { ThreeCanvas } from "@remotion/three";
 import React, { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { AbsoluteFill, cancelRender, continueRender, delayRender, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
-import { CameraRig, cameraPose, lineProgress, projector } from "./components/CameraRig";
+import { CameraMode, CameraRig, cameraPose, lineProgress, projector } from "./components/CameraRig";
 import { GlowDot, MarkerLabel } from "./components/MarkerLabel";
 import { RouteLine } from "./components/RouteLine";
 import { Territory } from "./components/Territory";
@@ -49,14 +49,14 @@ const useOrtho = (enabled: boolean) => {
 
 export type Look = "estilizado" | "realista" | "google";
 
-export const ArtazaBallonti: React.FC<{ look?: Look; reverse?: boolean; labels?: boolean }> = ({ look = "estilizado", reverse = false, labels }) => {
+export const ArtazaBallonti: React.FC<{ look?: Look; reverse?: boolean; labels?: boolean; camera?: CameraMode }> = ({ look = "estilizado", reverse = false, labels, camera = "standard" }) => {
   const data = useTerritory();
   const ortho = useOrtho(look === "realista");
   if (!data || (look === "realista" && !ortho)) return <AbsoluteFill style={{ background: CONFIG.colors.background }} />;
-  return <Scene data={data} look={look} ortho={ortho} reverse={reverse} labels={labels} />;
+  return <Scene data={data} look={look} ortho={ortho} reverse={reverse} labels={labels} camera={camera} />;
 };
 
-const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null; reverse: boolean; labels?: boolean }> = ({ data, look, ortho, reverse, labels }) => {
+const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null; reverse: boolean; labels?: boolean; camera: CameraMode }> = ({ data, look, ortho, reverse, labels, camera }) => {
   const google = look === "google";
   const real = look === "realista" || google;
   const showLabels = labels ?? (real ? CONFIG.real.labels : true);
@@ -71,7 +71,7 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null; re
   const aspect = width / height;
   const route = useMemo(() => makeRoute(data, 1200, reverse), [data, reverse]);
   const [nameStart, nameEnd] = reverse ? [CONFIG.ballonti.name, CONFIG.artaza.name] : [CONFIG.artaza.name, CONFIG.ballonti.name];
-  const pose = useMemo(() => cameraPose(frame, route, aspect), [frame, route, aspect]);
+  const pose = useMemo(() => cameraPose(frame, route, aspect, camera), [frame, route, aspect, camera]);
   const progress = THREE.MathUtils.clamp(lineProgress(t), 0, 1);
 
   // posiciones 2D para puntos y etiquetas
