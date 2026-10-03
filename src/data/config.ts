@@ -58,6 +58,28 @@ export const CONFIG = {
       surfaceTrace: 0.75, // opacidad de la traza discontinua en superficie
       surfaceDash: [14, 10] as [number, number], // m — trazo / hueco
     },
+    /* Túnel con volumen: tubo 3D a escala, en radiografía, con anillos de dovelas */
+    tunnel: {
+      enabled: true,
+      diameter: 10, // m — PENDIENTE de confirmar con el cliente
+      ringSpacing: 12, // m — separación visual de los anillos (simbólica; la dovela real ≈ 1,5–2 m no se percibe a esta distancia)
+      opacity: 0.38, // cuerpo del tubo
+      rim: 0.75, // brillo de los bordes (efecto radiografía)
+      ringStrength: 0.55,
+      coreWidth: 2.4, // px — eje fino dentro del tubo para que se lea también en planos lejanos
+    },
+    /* Corte de sección en la ría: al llegar la línea al cruce, el agua y el terreno se «abren» en un plano vertical */
+    section: {
+      enabled: true,
+      waterDepth: 10, // m — calado aproximado de la ría (PENDIENTE de confirmar)
+      sediment: 12, // m — espesor de fangos/arenas bajo el lecho
+      below: 18, // m de terreno visibles bajo el túnel
+      margin: 60, // m de corte en tierra a cada lado de la ría
+      openAhead: 0.03, // fracción del trazado antes de la ría en la que empieza a abrirse
+      openDuration: 0.05, // fracción del trazado que dura la apertura
+      opacity: 0.93,
+      colors: { waterTop: "#3E86C6", waterBottom: "#1C4E7A", bed: "#C9B48A", sediment: "#8E7A5A", rock: "#5C5852", rockLine: "#4A4741", edge: "#E9F6FF" },
+    },
     /* Modo radiografía de la ciudad mientras avanza la línea (solo acabado Google) */
     xrayCity: { desaturate: 0.6, darken: 0.2, in: [2.6, 4.6] as [number, number], out: [18.0, 19.6] as [number, number] }, // s de animación
   },

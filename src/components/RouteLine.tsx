@@ -6,6 +6,8 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { CONFIG } from "../data/config";
 import { Route } from "../data/route";
+import { RiaSection, sectionRange } from "./RiaSection";
+import { TunnelTube } from "./TunnelTube";
 
 const R = CONFIG.route;
 const U = R.underground;
@@ -45,6 +47,7 @@ export const RouteLine: React.FC<{ route: Route; progress: number }> = ({ route,
       glow: mk(R.glowWidth, R.glowOpacity, !under, 10),
       core: mk(R.width, under ? U.lineOpacity : 1, true, 11),
       xray: mk(R.width * (under ? 1 : 0.8), under ? U.lineOpacity : R.xray, false, 12),
+      tube: CONFIG.route.tunnel.enabled,
       trace,
       curtain,
     };
@@ -72,9 +75,10 @@ export const RouteLine: React.FC<{ route: Route; progress: number }> = ({ route,
       m.resolution.set(size.width, size.height);
       m.linewidth = width * scale;
     };
-    setLine(parts.glow, flat, R.glowWidth);
-    setLine(parts.core, flat, R.width);
-    setLine(parts.xray, flat, R.width * (parts.under ? 1 : 0.8));
+    const coreW = parts.tube ? CONFIG.route.tunnel.coreWidth : R.width;
+    setLine(parts.glow, flat, parts.tube ? R.glowWidth * 0.8 : R.glowWidth);
+    setLine(parts.core, flat, coreW);
+    setLine(parts.xray, flat, parts.tube ? coreW : R.width * (parts.under ? 1 : 0.8));
 
     // traza en superficie y cortina: solo donde el túnel va enterrado (no en los pozos verticales)
     const horiz = pts.map((p, i) => (i === 0 ? false : Math.hypot(p.x - pts[i - 1].x, p.z - pts[i - 1].z) > 0.01));
@@ -88,8 +92,11 @@ export const RouteLine: React.FC<{ route: Route; progress: number }> = ({ route,
     if (c.visible) {
       const pos: number[] = [], col: number[] = [];
       const a0 = U.curtainOpacity;
+      const sec = sectionRange(route);
       for (let i = 1; i < pts.length; i++) {
         if (!horiz[i]) continue;
+        const k = idx[i] ?? idx[idx.length - 1] + 1; // la punta interpolada pertenece al tramo siguiente
+        if (sec && k >= sec.i0 && k <= sec.i1 + 1) continue;
         const p = pts[i - 1], q = pts[i];
         const quad: [number, number, number, number][] = [
           [p.x, p.y, p.z, a0], [q.x, q.y, q.z, a0], [q.x, tops[i], q.z, 0],
@@ -107,6 +114,8 @@ export const RouteLine: React.FC<{ route: Route; progress: number }> = ({ route,
 
   return (
     <>
+      <RiaSection route={route} progress={progress} />
+      <TunnelTube route={route} progress={progress} />
       <primitive object={parts.curtain} />
       <primitive object={parts.glow} />
       <primitive object={parts.core} />
