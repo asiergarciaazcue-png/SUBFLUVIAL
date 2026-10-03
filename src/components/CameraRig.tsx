@@ -46,7 +46,10 @@ export function cameraPose(frame: number, route: Route, aspect: number): Pose {
   const p = route.at(along);
   const range = Math.exp(curves.logRange(frame));
   const h = curves.heading(frame) * D2R, el = (90 - curves.tilt(frame)) * D2R;
-  const dx = Math.sin(h), dz = -Math.cos(h);
+  // el rumbo es relativo al sentido de avance: en el recorrido inverso la cámara gira 180°
+  // (vuela por el otro lado del trazado) y la línea sigue creciendo de izquierda a derecha en pantalla
+  const sgn = route.reverse ? -1 : 1;
+  const dx = sgn * Math.sin(h), dz = -sgn * Math.cos(h);
   const target = new THREE.Vector3(p.x, Math.max(route.hAt(p.x, p.z), 0), p.z);
   const px = target.x - dx * Math.cos(el) * range, pz = target.z - dz * Math.cos(el) * range;
   const py = Math.max(target.y + Math.sin(el) * range, route.hAt(px, pz) + CONFIG.camClearance);

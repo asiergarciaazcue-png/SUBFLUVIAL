@@ -49,14 +49,14 @@ const useOrtho = (enabled: boolean) => {
 
 export type Look = "estilizado" | "realista" | "google";
 
-export const ArtazaBallonti: React.FC<{ look?: Look }> = ({ look = "estilizado" }) => {
+export const ArtazaBallonti: React.FC<{ look?: Look; reverse?: boolean }> = ({ look = "estilizado", reverse = false }) => {
   const data = useTerritory();
   const ortho = useOrtho(look === "realista");
   if (!data || (look === "realista" && !ortho)) return <AbsoluteFill style={{ background: CONFIG.colors.background }} />;
-  return <Scene data={data} look={look} ortho={ortho} />;
+  return <Scene data={data} look={look} ortho={ortho} reverse={reverse} />;
 };
 
-const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> = ({ data, look, ortho }) => {
+const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null; reverse: boolean }> = ({ data, look, ortho, reverse }) => {
   const google = look === "google";
   const real = look === "realista" || google;
   const showLabels = real ? CONFIG.real.labels : true;
@@ -69,7 +69,8 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> 
   const X = CONFIG.route.xrayCity;
   const xray = smooth01((t - X.in[0]) / (X.in[1] - X.in[0])) * (1 - smooth01((t - X.out[0]) / (X.out[1] - X.out[0])));
   const aspect = width / height;
-  const route = useMemo(() => makeRoute(data), [data]);
+  const route = useMemo(() => makeRoute(data, 1200, reverse), [data, reverse]);
+  const [nameStart, nameEnd] = reverse ? [CONFIG.ballonti.name, CONFIG.artaza.name] : [CONFIG.artaza.name, CONFIG.ballonti.name];
   const pose = useMemo(() => cameraPose(frame, route, aspect), [frame, route, aspect]);
   const progress = THREE.MathUtils.clamp(lineProgress(t), 0, 1);
 
@@ -100,8 +101,8 @@ const Scene: React.FC<{ data: TerritoryData; look: Look; ortho: Ortho | null }> 
         {sA.visible && <GlowDot x={sA.x} y={sA.y} size={CONFIG.route.markerSize} opacity={startDot} />}
         {sB.visible && <GlowDot x={sB.x} y={sB.y} size={CONFIG.route.markerSize} opacity={endDot} />}
         {sH.visible && <GlowDot x={sH.x} y={sH.y} size={CONFIG.route.markerSize * 0.62} opacity={progress > 0.001 && progress < 0.985 ? 1 : 0} />}
-        {showLabels && sA.visible && <MarkerLabel x={sA.x} y={sA.y} text={CONFIG.artaza.name} opacity={aIn} />}
-        {showLabels && sB.visible && <MarkerLabel x={sB.x} y={sB.y} text={CONFIG.ballonti.name} opacity={bIn} />}
+        {showLabels && sA.visible && <MarkerLabel x={sA.x} y={sA.y} text={nameStart} opacity={aIn} />}
+        {showLabels && sB.visible && <MarkerLabel x={sB.x} y={sB.y} text={nameEnd} opacity={bIn} />}
       </AbsoluteFill>
       {google && CONFIG.google.attribution && (
         <div style={{ position: "absolute", right: 22, bottom: 16, fontFamily: "Arial, sans-serif", fontSize: 15, color: "rgba(255,255,255,.85)", textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>

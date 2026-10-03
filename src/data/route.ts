@@ -47,11 +47,13 @@ export const makeHeight = (T: Territory) => {
 };
 
 /* ---------- Eje del trazado (de Artaza a Ballonti) ---------- */
-export const makeRoute = (T: Territory, N = 1200) => {
+/* reverse = true: recorrido Ballonti → Artaza (mismo trazado, sentido contrario) */
+export const makeRoute = (T: Territory, N = 1200, reverse = false) => {
   const fr = makeFrame(T);
   const hAt = makeHeight(T);
-  const a = fr.toLocal(CONFIG.artaza.lat, CONFIG.artaza.lon);
-  const b = fr.toLocal(CONFIG.ballonti.lat, CONFIG.ballonti.lon);
+  const pA = fr.toLocal(CONFIG.artaza.lat, CONFIG.artaza.lon);
+  const pB = fr.toLocal(CONFIG.ballonti.lat, CONFIG.ballonti.lon);
+  const [a, b] = reverse ? [pB, pA] : [pA, pB];
   const pts: { x: number; y: number; z: number }[] = [];
   const ground: number[] = [];
   for (let i = 0; i < N; i++) {
@@ -134,6 +136,6 @@ export const makeRoute = (T: Territory, N = 1200) => {
     const f = clamp(s, 0, 1) * (M - 1), i = Math.min(M - 2, Math.floor(f));
     return lerp(surface[i], surface[i + 1], f - i);
   };
-  return { pts, surface, at, surfaceAt, start: pts[0], end: pts[M - 1], hAt, frame: fr, crossing };
+  return { pts, surface, at, surfaceAt, start: pts[0], end: pts[M - 1], hAt, frame: fr, crossing, reverse };
 };
 export type Route = ReturnType<typeof makeRoute>;
