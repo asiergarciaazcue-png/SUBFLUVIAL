@@ -6,3 +6,4 @@ data/raw/
 !render/*.mp4
 .env*
 data/cache/
+public/earth/*.mp4

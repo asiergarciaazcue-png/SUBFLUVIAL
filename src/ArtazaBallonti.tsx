@@ -11,7 +11,7 @@ import { GoogleTiles } from "./components/GoogleTiles";
 import { CONFIG } from "./data/config";
 import { makeRoute, smooth01, Territory as TerritoryData } from "./data/route";
 
-const useTerritory = () => {
+export const useTerritory = () => {
   const [data, setData] = useState<TerritoryData | null>(null);
   const [handle] = useState(() => delayRender("Cargando territorio real (public/territory.json)", { timeoutInMilliseconds: 120000 }));
   useEffect(() => {

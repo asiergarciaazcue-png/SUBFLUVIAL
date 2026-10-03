@@ -1,5 +1,6 @@
 import { Composition } from "remotion";
 import { ArtazaBallonti } from "./ArtazaBallonti";
+import { EarthOverlay } from "./EarthOverlay";
 import { CONFIG } from "./data/config";
 
 const common = {
@@ -25,5 +26,7 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="BallontiArtazaRealistaCine" component={ArtazaBallonti} defaultProps={{ look: "realista" as const, reverse: true, labels: false, camera: "cine" as const }} {...common} />
     {/* Recorrido inverso Ballonti → Artaza sobre Google 3D (cámara por el otro lado; la línea crece de izquierda a derecha) */}
     <Composition id="BallontiArtazaGoogle" component={ArtazaBallonti} defaultProps={{ look: "google" as const, reverse: true, labels: false, camera: "cine" as const }} {...common} />
+    {/* Línea subterránea superpuesta a un render de Google Earth Studio (cámara del 3D tracking data) */}
+    <Composition id="BallontiArtazaEarth" component={EarthOverlay} defaultProps={{ video: "earth/ballonti-artaza-cine.mp4", camera: "earth/camera.json", reverse: true }} {...common} />
   </>
 );
